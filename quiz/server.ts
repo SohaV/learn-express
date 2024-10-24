@@ -3,6 +3,7 @@ import path from 'path';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 
+
 interface User {
   id: number;
   firstName: string;
@@ -40,7 +41,12 @@ const addMsgToRequest = (req: UserRequest, res: Response, next: NextFunction) =>
 };
 
 app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use('/read/usernames', addMsgToRequest);
+app.use('/read/username', addMsgToRequest);
+
 
 app.get('/read/usernames', (req: UserRequest, res: Response) => {
   let usernames = req.users?.map((user) => {
@@ -49,8 +55,12 @@ app.get('/read/usernames', (req: UserRequest, res: Response) => {
   res.send(usernames);
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.get('/read/username/:name', (req: UserRequest, res: Response) => {
+  let username = req.params.name;
+  let user = users.find((user) => user.username === username);
+  res.send([{ id: user?.id, email: user?.email }]);
+})
+
 app.use('/write/adduser', addMsgToRequest);
 
 app.post('/write/adduser', (req: UserRequest, res: Response) => {
